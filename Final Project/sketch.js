@@ -6,7 +6,6 @@ let textX;
 let showStartText=false;
 let screenNum=1;
 var mgr;
-let fadeIn;
 let canvasWidth=1280;
 let canvasHeight=720;
 let textGrow=0;
@@ -23,6 +22,27 @@ let korematsu;
 let showKorematsuText=false;
 let pearlHarbor;
 
+
+let img; 
+let fontSizeMax =30;
+let fontSizeMin= 18;
+let kerning =0.505;
+let cw;
+let characterx;
+let whichline = 0;
+let currentLine='';
+let textPositions=[];
+let joinedText;
+let betweenWords=-1;
+let m;
+let showImage=false; 
+let typewriter;
+let typewriterBold;
+let endTextSize=9;
+let mode=1;
+let startOpacity=0;
+let fadeIn=-40;
+
 function preload(){
 	mapimg=loadImage("https://api.mapbox.com/styles/v1/mapbox/light-v10/static/pin-s-y+000(-87.0186,32.4055),pin-s-r+000(-90.0186,32.4055)/-97,37.78,3.75,0,0/1280x720?access_token=pk.eyJ1IjoicnlyeWsxIiwiYSI6ImNraTI5dGp2czBubnUycHFubTAybWltOWcifQ.x2xSpc6x6sdAR9dzRCmgCQ");
 	radio=loadImage("radio (2)-01.png");
@@ -31,6 +51,12 @@ function preload(){
 		ringleImg=loadImage("Ringle Title.png");
 		typewriter = loadFont('American Typewriter Regular.ttf');
 	pearlHarbor = loadSound('PearlHarbor.mp3');
+	
+	
+	 img = loadImage('billImage.jpg');
+  lines = loadStrings('bill.txt');	
+	typewriter = loadFont('American Typewriter Regular.ttf');
+	typewriterBold = loadFont('AmericanTypItcDBol.ttf');
 
 }
 
@@ -48,6 +74,7 @@ function setup()
 	mgr.addScene(leaving);
 		mgr.addScene(cases);
 		  mgr.addScene ( report );
+	  mgr.addScene ( reparations );
 
    mgr.showNextScene();
 }
@@ -96,6 +123,9 @@ function keyPressed()
             break;
 			case 7:
 					 mgr.showScene( report );
+            break;
+			case 8:
+					 mgr.showScene( reparations );
             break;
     }
 	
@@ -154,6 +184,7 @@ function Intro()
 		
 		} //planning on preventing user from progressing until counter is finished
 		// Also planning on adding more title text
+		//Would also like to add border of images of internment camp survivors, using an array of images and API
 		
 		else{
 					peopleCounter+=addSpeed;
@@ -506,6 +537,143 @@ function report(){
 	
 	
 }
+
+function reparations(){
+//planning on building on Sketch 4 
+// Going to add bolded text for certain words with words[i]
+//also going to have it do different things with mousePressed
+	this.setup=function(){
+//createCanvas(960,668);
+					createCanvas(canvasWidth, canvasHeight);
+
+rectMode(CENTER);
+textAlign(LEFT,CENTER);
+textSize(18);
+words = lines.toString().split(' ');
+textFont(typewriter);
+		
+
+
+		
+	}
+	
+	this.draw=function(){
+		m = map(mouseX, 200, width - 200, 0, 1);
+	m = constrain(m, 0, 1);
+	background(255);
+let x = 0;
+let y=20;
+let counter =0;
+img.loadPixels();
+//paragraph formatting adapted from text parse- Alice https://www.openprocessing.org/sketch/782516
+ let margin = 0;
+  let thex = margin; // start at the left
+	let they=10;
+	let endStartY=5;
+	let startY = lerp(they, endStartY, m);
+  they = startY; // start one line down
+	let leading = 20.2; 
+		for(i in words) // (for i = 0;i<phrasearray.length;i++)
+  {
+    if((words[i]=='Executive')||(words[i]=='Order')||(words[i]=='Order,'))//Makes the words "executive" and "order" bold
+    {
+			let newfontSizeMax = fontSizeMax;
+			newfontSizeMax=endTextSize;
+			let interFontSizeMax = lerp(fontSizeMax, newfontSizeMax, m);
+		if(mouseX<width/2){
+		textFont(typewriterBold);
+			}
+      textSize(interFontSizeMax);
+    }
+		else if (words[i-1]=='9066') //puts a newline after the word "Executive"
+		{
+			let newLeading = leading;
+			let newMargin = margin;
+			newLeading=0;
+			newMargin=characterx;
+			let interLeading = lerp(leading, newLeading, m); 
+			//repositioning animation adapted from Generative Design P_3_1_3_05 (http://www.generative-gestaltung.de/2/sketches/?01_P/P_3_1_3_05)
+ 			let interMargin = lerp(margin, newMargin, m);
+			 they+=interLeading;
+			thex=interMargin;	
+		}
+    else
+    {
+			textStyle(NORMAL);
+				textFont(typewriter);
+//textSize(fontSizeMin);
+    }
+		if (they>20){
+					let newfontSizeMin = fontSizeMin;
+			newfontSizeMin=endTextSize;
+			let interFontSizeMin = lerp(fontSizeMin, newfontSizeMin, m);
+			 textSize(interFontSizeMin);
+		}
+    //fill(random(255), random(255), random(255));
+   // fill(0);
+    var tw = textWidth(words[i]+' ');
+		let textw;
+		//print(textWidth(words[0]));
+		//line(0,20,textWidth(words[0]),20);
+    
+    if(thex+tw>width-margin) // if we are close to the edge
+    {
+			let newLeading = leading;
+			newLeading=9;
+			let interLeading = lerp(leading, newLeading, m);
+      thex=margin;
+      //they+=leading;
+			they+=interLeading;
+    }
+    //text(words[i], thex, they);
+		letters=words[i]; 
+		textw=textWidth(words[i]);
+		let keyspace;
+		characterx=thex;
+		for (let j in letters){
+				let c = color(img.get(characterx,they)); //adapted from Generative Design P_4_3_2_01 (http://www.generative-gestaltung.de/2/sketches/?01_P/P_4_3_2_01)
+				//gets color of each pixel, and set the characters of each word to the color of the pixel
+			//	fill(c);
+			let startr=0;
+			let startg=0;
+			let startb=0;
+			let endr= red(c);
+			let endg=green(c);
+			let endb=blue(c);
+			let newr= map(mouseX,100,width-100,startr,endr);
+			let newg= map(mouseX,100,width-100,startg,endg);
+ let newb= map(mouseX,100,width-100,startb,endb);
+			fill(newr,newg,newb);
+			text(letters[j], characterx, they);
+			characterx+=textWidth(letters[j]);
+		//	text(letters.length, thex, they);
+		//	text(floor(keyspace), thex+keyspace, they);
+
+		}
+		keyspace=0;
+		//text(str(i+','+they), thex, they);
+    thex+=tw+betweenWords;
+  }
+
+	if (showImage==true){
+	if (mouseX>width/2){
+	if (startOpacity<255/2){
+			tint(255, startOpacity+=fadeIn); // Fade in to half opacity
+	}
+  image(img, 0, 0);	
+	}
+	}  
+	if (mouseX>width-50){
+		tint(255, 255/2);
+		  image(img, 0, 0);	
+		
+	}
+		
+	}
+	
+	
+}
+
 
 /*
 function template(){
