@@ -77,6 +77,8 @@ function preload(){
 	typewriter = loadFont('American Typewriter Regular.ttf');
 	typewriterBold = loadFont('AmericanTypItcDBol.ttf');
 
+	//3 possible borders, one is chosen at random before shown
+
 pickPeople=floor(random(1,4));
 if (pickPeople==1){
 	print(pickPeople);
@@ -100,7 +102,9 @@ jsonURL='https://ddr.densho.org/api/0.2/narrator/?format=json&limit=25&offset=45
 //for screen 1 border
 
 
-		gotData=loadJSON('https://cors-anywhere.herokuapp.com/'+jsonURL,resultLoaded);
+		gotData=loadJSON('https://cors-anywhere.herokuapp.com/'+jsonURL,resultLoaded); 
+		//this (this as well as the resultloaded function) could be my milestone. It uses a combination of preload and a callback function to load images from a JSON.
+		//This took me a long time to figure out but I think it's pretty cool.
 
 
 
@@ -114,7 +118,7 @@ backupImage2=loadImage('https://cors-anywhere.herokuapp.com/https://ddr.densho.o
 indexMax=imageData.objects.length;
 	for (let  i=0; i<indexMax;i++){
 		if ((i==23)){
-			imgList.push(backupImage);
+			imgList.push(backupImage); //I found some parts of the JSON I was using was missing some images, so I filled those in myself
 		}
 		else if (i==22){
 			imgList.push(backupImage2);
@@ -124,7 +128,7 @@ indexMax=imageData.objects.length;
 		//imgList.push(loadImage('https://cors-anywhere.herokuapp.com/'+url));
 		loadImage(('https://cors-anywhere.herokuapp.com/'+url), img=>{
 
-			imgList.push(img);
+			imgList.push(img); //adds to an array of objects
 			console.log(i+'loaded');
 			console.log(img);
 		},img => { 
