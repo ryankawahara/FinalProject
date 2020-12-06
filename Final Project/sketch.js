@@ -42,9 +42,28 @@ let endTextSize=9;
 let mode=1;
 let startOpacity=0;
 let fadeIn=-40;
+let textFadeIn=0;
+
+
+let json;
+let names;
+let imgList= [];
+let jsonURL;
+let greyBox;
+let jsonURLList=[];
+let imageIndex;
+let resizeX=60;
+let resizeY=60;
+let imageStagger;
+let callMethod = true;
+
+let namePosition;
+let nameVelocity;
+let nameIndex=0;
+let pickPeople;
 
 function preload(){
-	mapimg=loadImage("https://api.mapbox.com/styles/v1/mapbox/light-v10/static/pin-s-y+000(-87.0186,32.4055),pin-s-r+000(-90.0186,32.4055)/-97,37.78,3.75,0,0/1280x720?access_token=pk.eyJ1IjoicnlyeWsxIiwiYSI6ImNraTI5dGp2czBubnUycHFubTAybWltOWcifQ.x2xSpc6x6sdAR9dzRCmgCQ");
+	mapimg=loadImage("https://api.mapbox.com/styles/v1/mapbox/light-v10/static/pin-s-t+000(-112.7167,39.3833),pin-s-c+000(-114.2833,34.15),pin-s-g+000(-111.8667,32.1667),pin-s-a+000(-102.3,38.05),pin-s-h+000(-109.05,44.5167),pin-s-m+000(-118.0667,36.7333),pin-s-m+000(-114.2333,42.6667),pin-s-r+000(-91.2667,33.75),pin-s-t+000(-121.3667,41.8833),pin-s-j+000(-92.4667,33.3833)/-97,37.78,3.75,0,0/1280x720?access_token=pk.eyJ1IjoicnlyeWsxIiwiYSI6ImNraTI5dGp2czBubnUycHFubTAybWltOWcifQ.x2xSpc6x6sdAR9dzRCmgCQ");
 	radio=loadImage("radio (2)-01.png");
 	table=loadImage("table.png");
 	evacuationImg=loadImage("Doc 3_ Evacuation Instructions.jpg");
@@ -58,13 +77,82 @@ function preload(){
 	typewriter = loadFont('American Typewriter Regular.ttf');
 	typewriterBold = loadFont('AmericanTypItcDBol.ttf');
 
+pickPeople=floor(random(1,4));
+if (pickPeople==1){
+	print(pickPeople);
+jsonURL='https://ddr.densho.org/api/0.2/narrator/?format=json&limit=25&offset=75';
+
+
 }
+if (pickPeople==2){
+	print(pickPeople);
+jsonURL='https://ddr.densho.org/api/0.2/narrator/?format=json&limit=25&offset=275'
+
+}
+
+if (pickPeople==3){
+	print(pickPeople);
+jsonURL='https://ddr.densho.org/api/0.2/narrator/?format=json&limit=25&offset=450';
+
+
+}
+
+//for screen 1 border
+
+
+		gotData=loadJSON('https://cors-anywhere.herokuapp.com/'+jsonURL,resultLoaded);
+
+
+
+}
+
+function resultLoaded(data){ //load data for image 
+
+imageData=data;
+backupImage=loadImage('https://cors-anywhere.herokuapp.com/https://ddr.densho.org/media/narrators/gfumiko.jpg',(event) => {print('boxloaded!') });
+backupImage2=loadImage('https://cors-anywhere.herokuapp.com/https://ddr.densho.org/media/narrators/hizumi.jpg');
+indexMax=imageData.objects.length;
+	for (let  i=0; i<indexMax;i++){
+		if ((i==23)){
+			imgList.push(backupImage);
+		}
+		else if (i==22){
+			imgList.push(backupImage2);
+		}
+		else{
+		url=imageData.objects[i].links.img;
+		//imgList.push(loadImage('https://cors-anywhere.herokuapp.com/'+url));
+		loadImage(('https://cors-anywhere.herokuapp.com/'+url), img=>{
+
+			imgList.push(img);
+			console.log(i+'loaded');
+			console.log(img);
+		},img => { 
+			//img=greyBox;
+		//imgList.push(img);
+		//console.log(greyBox);
+		console.log(i+'failed');
+    } );
+	}
+	}
+//	img=loadImage('https://cors-anywhere.herokuapp.com/'+url);	
+}
+
+
 
 function setup()
 {	
 	imageMode(CENTER);
+	rectMode(CENTER);
+
+	
+	radioAmp= new p5.Amplitude();
+
     createCanvas(canvasWidth, canvasHeight);
 		  bed = createSprite(width/2, height/2);
+		  	bed.addAnimation('normal', 'bed1.png','bed2.png');
+				bed.animation.stop();
+
 
     mgr = new SceneManager();
     mgr.addScene ( Intro );
@@ -88,6 +176,8 @@ function mousePressed()
 {
     mgr.handleEvent("mousePressed");
 }
+
+
 
 function keyPressed()
 {
@@ -133,20 +223,61 @@ function keyPressed()
 }
 
 
-
-
 function Intro()
 {
     this.setup = function() {
 			  createCanvas(canvasWidth, canvasHeight);
+			//  rectMode(CENTER);
+			  ellipseMode(CENTER);
+			    namePosition = createVector(width/2-500, height/2+275);
+  				nameVelocity = createVector(1.5, 0);
 
 			//background(255,0,0);
-	 textX =  width/2-100
+	 textX =  width/2-100;
+	 			textAlign(CENTER);
+
     }
 
     this.draw = function() {
-    			background(255);
+    			//background(255);
+noStroke();
+fill(255);
+rect(width/2,height/2,width-120,height-120);
+ellipse(width/2,height/2,500,500);
+fill(0);
+  namePosition.add(nameVelocity);
+    textAlign(CENTER);
+  textSize(19);
+  textFont(typewriterBold);
+  textFont(typewriter);
+text(imageData.objects[nameIndex].display_name,namePosition.x,namePosition.y); //animation adapted from https://editor.p5js.org/2sman/sketches/r1aETVwYX
+  textSize(10);
+    textFont(typewriter);
 
+text('Birthplace: '+imageData.objects[nameIndex].birth_location,namePosition.x,namePosition.y+12.5); 
+
+  if ((namePosition.x > width-140) || (namePosition.x < width/2-500)) {
+    nameVelocity.x =    nameVelocity.x * -1;
+
+   if (nameIndex<25){
+nameIndex+=1;
+   } 
+  }
+  if ((namePosition.y > height) || (namePosition.y < 0)) {
+    nameVelocity.y =  nameVelocity.y * -1;
+  if (nameIndex<25){
+nameIndex+=1;
+   } 
+
+  }
+
+  namePosition.add(nameVelocity);
+
+   if(callMethod){ //only runs this function once
+   //https://forum.processing.org/two/discussion/3647/how-execute-a-function-only-once
+   drawGrid();
+    callMethod = false;
+  }
 	if (peopleCounter<10000){
 		textX=width/2-80;	
 	}
@@ -164,11 +295,14 @@ function Intro()
 	translate(textX,(height/2));
 			textAlign(CENTER);
 
+
 	  textSize(textGrow);
 			if (textGrow<125){
 			textGrow+=0.75;
 			}
 //	text(floor(peopleCounter),textX,(height/2));
+  textFont(typewriterBold);
+
 				text(floor(peopleCounter),125,0);
 			pop();
 	if (peopleCounter<120000){
@@ -194,19 +328,92 @@ function Intro()
 			showStartText=true;
 		}
 	}
+
+	if (showStartText==true){
+		fill(0,textFadeIn);
+		textSize(21);
+		textAlign(CENTER);
+		  textFont(typewriter);
+
+		text('Japanese Americans were interned \n between the years of 1942 and 1945.',width/2,(height/2)+40);
+		textFadeIn+=10;
+	}
 }
+
+function drawGrid(){
+		imageMode(CORNER);
+
+
+	//border adapted from Riley's Sketch 3 https://www.openprocessing.org/sketch/997496
+	//for (let imageIndex =0; imageIndex<indexMax;imageIndex++){
+for(let i=0; i < canvasWidth; i += canvasWidth/20){
+ if (imageIndex<indexMax-1){
+   	imageIndex+=1;
+    if (imageIndex>2){
+      	 imageStagger=imageIndex-2;
+      	     		}
+    else if (imageIndex<=2){
+      	 imageStagger=floor(random(0,24));
+			}
+      	     // imageStagger+=1;
+     						 }		
+  else {
+     imageIndex=0;
+      	// noLoop();
+      }
+
+    for(let j=0; j < canvasHeight; j += canvasHeight/12){
+
+     if (imageIndex<indexMax-1){
+      	      imageIndex+=1;
+      	      if (imageIndex>2){
+      	      	imageStagger=imageIndex-2;
+      	      }
+      	      else if (imageIndex<=2){
+      	      	imageStagger=floor(random(5,20));
+      	      }
+      	     // imageStagger+=1;
+
+      }
+      else {
+      	imageIndex=0;
+      }
+    //	scale(0.5);
+    //	print('index'+imageIndex);
+      image((imgList[imageIndex]),i,0,resizeX,resizeY);
+      image((imgList[imageStagger]),i,canvasHeight-resizeY,resizeX,resizeY);
+      image((imgList[imageIndex]),0,j,resizeX,resizeY);
+      image((imgList[imageStagger]),canvasWidth-resizeX,j,resizeX,resizeY);
+    }   
+  }
+
+	imageMode(CENTER);
+
 }
+this.mousePressed=function(){
+
+//drawGrid=true;
+
+}
+
+}
+
+
+
 
 function Radio(){
 	this.setup = function(){
 		createCanvas(canvasWidth, canvasHeight);
 		background(255);
-		
+
+
 	}
 	
 	this.draw = function(){
 				background(255);
 		
+		let radioVolume=radioAmp.getLevel();
+		let diameter=map(radioVolume,0,0.3,80,350);
 		push();
 		translate(width/2,height/2-100);
 
@@ -221,11 +428,20 @@ function Radio(){
 			image(radio,0,0);
 		
 		pop();
-		//if you click on the radio, it will play a news clip from pearl harbor	
+		//if you click on the radio, it will play a news clip from pearl harbor
+		noStroke();	
+		fill(0,50);
+		ellipse(width/2-2.5,height/2-40,diameter,diameter);
+
 	}
 	
 	this.mousePressed= function(){
+		if (pearlHarbor.isPlaying()==false){
+			pearlHarbor.setVolume(0.3);
 		pearlHarbor.play();
+
+
+		}
 		
 	}
 }
@@ -240,6 +456,9 @@ function usaMap()
 			ellipseMode(CENTER);
 	 camera.position.x = width/2;
   camera.position.y = height/2;
+  textAlign(CENTER);
+  textSize(19);
+
 	
     }
 
@@ -263,6 +482,7 @@ function usaMap()
   camera.position.y = constrain(mouseY, 200, 500);
 			image(mapimg,width/2,height/2);
 			}
+			text('Japanese Americans on the West Coast, many of whom were American citizens, were sent to one of 10 different camps across the country. \n \n Many were hastily built and in remote areas.',width/2,height-650);
 
     }
 	
@@ -281,7 +501,7 @@ function evacuation()
 	createCanvas(canvasWidth, canvasHeight);
 			background(255);
 
-	rectMode(CENTER);
+	//rectMode(CENTER);
 	camera.zoom = 1;
 			ellipseMode(CENTER);
 			nonalien = new Clickable();
@@ -300,7 +520,8 @@ function evacuation()
 
     this.draw = function() {
 	//this screen will highlight other parts of the Executive Order and explain why they're bad
-			
+			rectMode(CORNER);
+		
 			nonalien.onPress = function(){
 				showNonAlienRect=!showNonAlienRect;
 				print(showNonAlienRect);
@@ -401,8 +622,7 @@ function leaving(){
 
 
 			createCanvas(canvasWidth, canvasHeight);
-		bed.addAnimation('normal', 'bed1.png','bed2.png');
-				bed.animation.stop();
+	
 	
 
 //		bed.addAnimation('new','bed2.png');
@@ -546,7 +766,6 @@ function reparations(){
 //createCanvas(960,668);
 					createCanvas(canvasWidth, canvasHeight);
 
-rectMode(CENTER);
 textAlign(LEFT,CENTER);
 textSize(18);
 words = lines.toString().split(' ');
