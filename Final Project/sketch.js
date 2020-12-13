@@ -14,6 +14,7 @@ let camZoom=false;
 let bed;
 		let draggedSprite;
 let xOffset, yOffset;
+let indexMax=25;
 
 let startRotate=false;
 let finishedRotate=false;
@@ -70,6 +71,12 @@ function preload(){
 		ringleImg=loadImage("Ringle Title.png");
 		typewriter = loadFont('American Typewriter Regular.ttf');
 	pearlHarbor = loadSound('PearlHarbor.mp3');
+	asakopic = loadImage("auntie internment.png");
+	//setsuko = loadImage("grandma.png");
+//	denby = loadImage("grandpa internment.png");
+	backupImage=loadImage('https://cors-anywhere.herokuapp.com/https://ddr.densho.org/media/narrators/gfumiko.jpg');
+backupImage2=loadImage('https://cors-anywhere.herokuapp.com/https://ddr.densho.org/media/narrators/hizumi.jpg');
+backupJSONData=loadJSON('densho.json');
 	
 	
 	 img = loadImage('billImage.jpg');
@@ -102,26 +109,28 @@ jsonURL='https://ddr.densho.org/api/0.2/narrator/?format=json&limit=25&offset=45
 //for screen 1 border
 
 
-		gotData=loadJSON('https://cors-anywhere.herokuapp.com/'+jsonURL,resultLoaded); 
+		//gotData=loadJSON('https://cors-anywhere.herokuapp.com/'+jsonURL,resultLoaded,urlLoadFail); 
+		//	gotData=loadJSON(jsonURL,resultLoaded,urlLoadFail); 
+
 		//this (this as well as the resultloaded function) could be my milestone. It uses a combination of preload and a callback function to load images from a JSON.
 		//This took me a long time to figure out but I think it's pretty cool.
-
-
-
 }
 
 function resultLoaded(data){ //load data for image 
 
 imageData=data;
-backupImage=loadImage('https://cors-anywhere.herokuapp.com/https://ddr.densho.org/media/narrators/gfumiko.jpg',(event) => {print('boxloaded!') });
-backupImage2=loadImage('https://cors-anywhere.herokuapp.com/https://ddr.densho.org/media/narrators/hizumi.jpg');
+//backupImage=loadImage('https://cors-anywhere.herokuapp.com/https://ddr.densho.org/media/narrators/gfumiko.jpg',(event) => {backupImage.save("backupImage1","png"); });
+//backupImage2=loadImage('https://cors-anywhere.herokuapp.com/https://ddr.densho.org/media/narrators/hizumi.jpg');
 indexMax=imageData.objects.length;
+	//print("indexmax="+indexMax);
 	for (let  i=0; i<indexMax;i++){
 		if ((i==23)){
 			imgList.push(backupImage); //I found some parts of the JSON I was using was missing some images, so I filled those in myself
+			
 		}
 		else if (i==22){
 			imgList.push(backupImage2);
+			//backupImage2.save("backupImage2","png");
 		}
 		else{
 		url=imageData.objects[i].links.img;
@@ -129,6 +138,7 @@ indexMax=imageData.objects.length;
 		loadImage(('https://cors-anywhere.herokuapp.com/'+url), img=>{
 
 			imgList.push(img); //adds to an array of objects
+			   //img.save('img'+i, 'png');
 			console.log(i+'loaded');
 			console.log(img);
 		},img => { 
@@ -142,13 +152,48 @@ indexMax=imageData.objects.length;
 //	img=loadImage('https://cors-anywhere.herokuapp.com/'+url);	
 }
 
+function urlLoadFail(data){
+	imageData=backupJSONData;
+	print('failed!');
+	for (let  i=0; i<25;i++){
+		if ((i==23)){
+			failbackupImage=loadImage("backupImage1.png");
+			imgList.push(failbackupImage); //I found some parts of the JSON I was using was missing some images, so I filled those in myself
+			
+		}
+		else if (i==22){
+						failbackupImage2=loadImage("backupImage2.png");
+
+			imgList.push(failbackupImage2);
+			//backupImage2.save("backupImage2","png");
+		}
+		else{
+	//	url=imageData.objects[i].links.img;
+		//imgList.push(loadImage('https://cors-anywhere.herokuapp.com/'+url));
+		loadImage(("img"+i+".png"), img=>{
+
+			imgList.push(img); //adds to an array of objects
+			   // img.save('img'+i, 'png');
+			console.log(i+'loaded');
+			console.log(img);
+		},img => { 
+			//img=greyBox;
+		//imgList.push(img);
+		//console.log(greyBox);
+		console.log(i+'failed');
+    } );
+	}
+	}
+	
+}
 
 
 function setup()
 {	
 	imageMode(CENTER);
 	rectMode(CENTER);
-
+gotData=loadJSON('https://cors-anywhere.herokuapp.com/'+jsonURL,resultLoaded,urlLoadFail); 
+//	gotData=loadJSON(jsonURL,resultLoaded,urlLoadFail); 
 	
 	radioAmp= new p5.Amplitude();
 
@@ -157,8 +202,33 @@ function setup()
 		  	bed.addAnimation('normal', 'bed1.png','bed2.png');
 				bed.animation.stop();
 
+	denbyPosition=createVector(width/2-350,height/2+25);
+	asakoPosition=createVector(width/2+350,height/2+25);
+	setsukoPosition=createVector(width/2,height/2+25);
+
+	denby = createSprite (denbyPosition.x,denbyPosition.y);
+	//width/2+350,height/2+25
+	denby.scale=0.15;
+	denby.addAnimation('normal','grandpa internment.png');
+	setsuko = createSprite (setsukoPosition.x,setsukoPosition.y);
+	//width/2-350,height/2+25
+		setsuko.scale=0.15;
+	setsuko.addAnimation('normal','grandma.png');
+	asako = createSprite (asakoPosition.x,asakoPosition.y);
+	//width/2,height/2+25
+	asako.addAnimation('normal','auntie internment.png');
+		asako.scale=0.15;
+	  grandparents = new Group();
+	grandparents.add(denby);
+		grandparents.add(setsuko);
+		grandparents.add(asako);
+
+
+	
+	
 
     mgr = new SceneManager();
+		mgr.addScene (dedication);
     mgr.addScene ( Intro );
     mgr.addScene ( Radio );
    mgr.addScene ( usaMap );
@@ -197,34 +267,157 @@ function keyPressed()
 	
     switch(screenNum)
     {
-        case 1:
+       case 1:
+            mgr.showScene( dedication );
+            break;  
+			case 2:
             mgr.showScene( Intro );
             break;
-        case 2:
+        case 3:
             mgr.showScene( Radio );
             break;
-        case 3:
+        case 4:
             mgr.showScene( evacuation );
             break;
-			case 4:
+			case 5:
 					mgr.showScene(leaving);
 				break;
-			case 5:
+			case 6:
 				 mgr.showScene( usaMap );
             break;
-			case 6:
+			case 7:
 					 mgr.showScene( cases );
             break;
-			case 7:
+			case 8:
 					 mgr.showScene( report );
             break;
-			case 8:
+			case 9:
 					 mgr.showScene( reparations );
             break;
     }
 	
       mgr.handleEvent("keyPressed");
 }
+
+function dedication(){
+	this.setup=function(){
+			createCanvas(canvasWidth, canvasHeight);
+
+print(asakopic.width+","+asakopic.height);
+		showDenbyText=false;
+		showAsakoText=false;
+		showSetsukoText=false;
+		
+	}
+	
+	denby.onMouseOver = function() {
+	showDenbyText=true;
+		print("hi");
+  };
+
+  denby.onMouseOut = function() {
+		showDenbyText=false;
+		print('bye');
+	};
+	
+	asako.onMouseOver = function() {
+	showAsakoText=true;
+  };
+
+  asako.onMouseOut = function() {
+		showAsakoText=false;
+	};
+	
+		  setsuko.onMouseOver = function() {
+	showSetsukoText=true;
+  };
+
+  setsuko.onMouseOut = function() {
+		showSetsukoText=false;
+	};
+	
+	this.draw=function(){
+			background(255);
+		    textAlign(CENTER);
+  textSize(60);
+  textFont(typewriterBold);
+	
+		push();
+		translate(denbyPosition.x,denbyPosition.y);
+		scale(0.15);
+		//image(setsuko,0,0);
+		//stroke(231, 76, 60);
+	//	stroke(241, 196, 15);
+				stroke(52, 152, 219);
+
+		strokeWeight(50);
+		noFill();
+		rect(0,0,1564,1565);
+		pop();
+		push();
+		translate(asakoPosition.x,asakoPosition.y);
+		scale(0.15);
+		//image(denby,0,0);
+	//	stroke(52, 152, 219);
+			stroke(241, 196, 15);
+		strokeWeight(50);
+		noFill();
+		rect(0,0,1564,1565);
+		pop();
+		
+			push();
+		translate(setsukoPosition.x,setsukoPosition.y);
+		scale(0.15);
+		//image(asako,0,0);
+	//	stroke(241, 196, 15);
+			stroke(231, 76, 60);
+		strokeWeight(50);
+		noFill();
+		rect(0,0,1564,1565);
+		pop();
+		fill(0);
+		text("In Loving Memory Of",width/2,150);
+			drawSprites(grandparents);
+		if (showDenbyText==true){
+			 textFont(typewriterBold);
+			textSize(20);
+			text("\"Grandpa\" Denby Kawahara",denbyPosition.x,denbyPosition.y+145);
+			 textFont(typewriter);
+			textSize(15);
+			text("Age at Internment: 20",denbyPosition.x,denbyPosition.y+165);
+			text("Relocated from: Los Angeles, CA",denbyPosition.x,denbyPosition.y+185);
+			text("Internment Camp: Gila River",denbyPosition.x,denbyPosition.y+205);
+		}
+		
+				if (showSetsukoText==true){
+			 textFont(typewriterBold);
+			textSize(20);
+			text("\"Grandma\" Setsuko Nishizono",setsukoPosition.x,setsukoPosition.y+145);
+			 textFont(typewriter);
+			textSize(15);
+			text("Age at Internment: 18",setsukoPosition.x,setsukoPosition.y+165);
+			text("Relocated from: Oakland, CA",setsukoPosition.x,setsukoPosition.y+185);
+			text("Internment Camp: Topaz",setsukoPosition.x,setsukoPosition.y+205);
+		}
+		
+		if (showAsakoText==true){
+			 textFont(typewriterBold);
+			textSize(20);
+			text("\"Auntie\" Asako Nishizono",asakoPosition.x,asakoPosition.y+145);
+			 textFont(typewriter);
+			textSize(15);
+			text("Age at Internment: 21",asakoPosition.x,asakoPosition.y+165);
+			text("Relocated from: Oakland, CA",asakoPosition.x,asakoPosition.y+185);
+			text("Internment Camp: Topaz",asakoPosition.x,asakoPosition.y+205);
+		}
+		
+
+	}
+
+	
+	
+}
+
 
 
 function Intro()
@@ -346,6 +539,7 @@ nameIndex+=1;
 
 function drawGrid(){
 		imageMode(CORNER);
+
 
 
 	//border adapted from Riley's Sketch 3 https://www.openprocessing.org/sketch/997496
