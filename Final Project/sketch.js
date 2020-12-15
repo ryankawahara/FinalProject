@@ -1356,8 +1356,8 @@ function endScreen() {
   this.setup=function() {
     createCanvas(canvasWidth, canvasHeight);
     learnMore = new Clickable();
-    learnMore.x = width/2;
-    learnMore.y = (height/2)+200;
+    learnMore.x = width/2-200;
+    learnMore.y = (height/2)+100;
     learnMore.color = "#f1c40f66";       //Background color of the clickable (hex number as a string)
     learnMore.strokeWeight = 2; 
     learnMore.text = "";  
@@ -1369,7 +1369,7 @@ function endScreen() {
 
   this.draw=function() {
     background(255);
-    rectMode(CENTER);
+    rectMode(CORNER);
     textAlign(CENTER);
     learnMore.draw();
     learnMore.onPress = function() {
