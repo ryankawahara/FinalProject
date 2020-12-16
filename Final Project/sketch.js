@@ -156,7 +156,7 @@ function setup()
   imageMode(CENTER);
   rectMode(CENTER);
   gotData=loadJSON('https://cors-anywhere.herokuapp.com/'+jsonURL, resultLoaded, urlLoadFail); 
-  //this (this as well as the resultloaded function) is my milestone. It uses a combination of preload and a callback function to load images from a JSON.
+  //this (this as well as the resultloaded function) is my milestone. It uses a callback function to load images from a JSON.
   //if the JSON can't be loaded via the internet, it loads from the local repository
   //learned how to use JSONs with callback functions from https://discourse.processing.org/t/newbie-question-cant-load-json-with-url/5665/5
   // learned from https://stackoverflow.com/questions/46743720/loadimage-failing-to-load-image-p5-js-webgl/49743359 to use the Heroku web app to bypass the CORS error
@@ -599,9 +599,7 @@ function Intro()
           addSpeed-=200/950;
           //print(addSpeed);
         }
-      } //planning on preventing user from progressing until counter is finished
-      // Also planning on adding more title text
-      //Would also like to add border of images of internment camp survivors, using an array of images and API
+      } 
 
       else {
         peopleCounter+=addSpeed;
