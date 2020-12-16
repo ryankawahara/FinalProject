@@ -140,14 +140,14 @@ function setup()
 {  
   createCanvas(canvasWidth, canvasHeight);
   backupImage=loadImage('https://cors-anywhere.herokuapp.com/https://ddr.densho.org/media/narrators/gfumiko.jpg', (event)=> {
-    print('loaded')
+    //print('loaded')
   }
   , (event)=> { 
     img=loadImage('backupImage1.png')
   }
   );
   backupImage2=loadImage('https://cors-anywhere.herokuapp.com/https://ddr.densho.org/media/narrators/hizumi.jpg', (event)=> {
-    print('loaded')
+   // print('loaded')
   }
   , (img)=> { 
     img=loadImage('backupImage2.png')
@@ -159,6 +159,7 @@ function setup()
   //this (this as well as the resultloaded function) is my milestone. It uses a combination of preload and a callback function to load images from a JSON.
   //if the JSON can't be loaded via the internet, it loads from the local repository
   //learned how to use JSONs with callback functions from https://discourse.processing.org/t/newbie-question-cant-load-json-with-url/5665/5
+  // learned from https://stackoverflow.com/questions/46743720/loadimage-failing-to-load-image-p5-js-webgl/49743359 to use the Heroku web app to bypass the CORS error
 
   radioAmp= new p5.Amplitude();
   grandmaAmp= new p5.Amplitude();
