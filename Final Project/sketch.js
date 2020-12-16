@@ -158,6 +158,7 @@ function setup()
   gotData=loadJSON('https://cors-anywhere.herokuapp.com/'+jsonURL, resultLoaded, urlLoadFail); 
   //this (this as well as the resultloaded function) is my milestone. It uses a combination of preload and a callback function to load images from a JSON.
   //if the JSON can't be loaded via the internet, it loads from the local repository
+  //learned how to use JSONs with callback functions from https://discourse.processing.org/t/newbie-question-cant-load-json-with-url/5665/5
 
   radioAmp= new p5.Amplitude();
   grandmaAmp= new p5.Amplitude();
@@ -250,7 +251,7 @@ function resultLoaded(data) { //if the sketch can reach the web API, it loads th
   //  img=loadImage('https://cors-anywhere.herokuapp.com/'+url);
 }
 
-function urlLoadFail(data) {
+function urlLoadFail(data) { //this runs if the web app is down
   print('failed!');
   goToNext=true;
   data=backupJSONData
