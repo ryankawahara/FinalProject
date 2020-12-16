@@ -512,6 +512,7 @@ function dedication() {
 function Intro()
 {
   this.setup = function() {
+		goToNext=false;
     createCanvas(canvasWidth, canvasHeight);
     //  rectMode(CENTER);
     ellipseMode(CENTER);
@@ -599,7 +600,7 @@ function Intro()
           addSpeed-=200/950;
           //print(addSpeed);
         }
-      } 
+      }
 
       else {
         peopleCounter+=addSpeed;
@@ -611,6 +612,7 @@ function Intro()
     }
 
     if (showStartText==true) {
+			goToNext=true; //can only go to next screen once animation is complete
       fill(0, textFadeIn);
       textSize(21);
       textAlign(CENTER);
