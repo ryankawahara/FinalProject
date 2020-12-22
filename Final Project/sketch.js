@@ -114,7 +114,7 @@ function preload() {
   kitchenBackground = loadImage("kitchen.jpeg")
     backupJSONData=loadJSON('densho.json');
   listen=loadImage('listen.png')
-    img = loadImage('billImage.png');
+    img = loadImage('billimage.png');
   lines = loadStrings('bill2.txt');  
   typewriter = loadFont('American Typewriter Regular.ttf');
   typewriterBold = loadFont('AmericanTypItcDBol.ttf');
